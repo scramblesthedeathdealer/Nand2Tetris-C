@@ -12,3 +12,44 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
+
+(START)		// starting here
+    @SCREEN
+    D = A
+    @addr
+    M = D
+    @8192	// pixels to paint
+    D = A
+    @pixels
+    M = D
+(CHECK) 	// keyboard input
+    @pixels	// anything left to paint?
+    D = M
+    @START
+    D;JEQ	
+    @KBD
+    D = M
+    @BLACKSC 
+    D;JNE
+    @BLANKSC 
+    D;JEQ
+    (BLACKSC)	
+	@addr	
+	A = M
+	M = -1
+	@addr
+	M = M + 1
+	@pixels	
+	M = M - 1
+	@CHECK	// type here
+	0;JMP
+    (BLANKSC)	
+	@addr
+	A = M
+	M = 0
+	@addr
+	M = M + 1
+	@pixels
+	M = M - 1
+	@CHECK
+	0;JMP
