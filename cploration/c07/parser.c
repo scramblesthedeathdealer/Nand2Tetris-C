@@ -9,49 +9,81 @@
 #include "symtable.h"
 #include <stdbool.h>
 #include <string.h>
-#include <math.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 
-void parse(FILE *file) {
-    char line[MAX_LINE_LENGTH];
 
+char *strip(char *s) {
+    // Implementation for strip function
+    // Remove leading and trailing whitespaces, comments, etc.
+    // Example: Skip implementation for now and return the input string as-is
+    return s;
+}
+
+bool is_Atype(const char *line) {
+    // Implementation for is_Atype function
+    // Check if the line represents an A-type instruction
+    // Example: Check if the line starts with '@' character
+    return (line[0] == '@');
+}
+
+bool is_label(const char *line) {
+    // Implementation for is_label function
+    // Check if the line represents a label
+    // Example: Check if the line starts with '(' and ends with ')'
+    int length = strlen(line);
+    return (length >= 3 && line[0] == '(' && line[length - 1] == ')');
+}
+
+bool is_Ctype(const char *line) {
+    // Implementation for is_Ctype function
+    // Check if the line represents a C-type instruction
+    // Example: Check if the line contains '=' or ';'
+    int length = strlen(line);
+    for (int i = 0; i < length; i++) {
+        if (line[i] == '=' || line[i] == ';') {
+            return true;
+        }
+    }
+    return false;
+}
+
+char *extract_label(const char *line, char *label) {
+    // Implementation for extract_label function
+    // Extract the label from the line if it represents a label
+    // Example: Copy the label from line to label variable
+    const char *start = strchr(line, '(');
+    if (start != NULL) {
+        const char *end = strchr(start, ')');
+        if (end != NULL) {
+            size_t length = end - start - 1;
+            strncpy(label, start + 1, length);
+            label[length] = '\0';
+            return label;
+        }
+    }
+    return NULL;
+}
+
+void parse(FILE *file) {
+    // Implementation for parse function
+    // Iterate through the file, parse each line, and perform necessary actions
+    char line[MAX_LINE_LENGTH];
     while (fgets(line, sizeof(line), file)) {
         strip(line);
 
-        // Commenting out printf lines
-        // printf("%c  %s\n", inst_type, line);
-
-        // Commenting out inst_type variable usage
-        // char inst_type = ' ';
-
         if (is_Atype(line)) {
-            // inst_type = 'A';
-            // printf("%c  %s\n", inst_type, line);
-
-            // Assuming label is the line without '@'
-            char label[MAX_LABEL_LENGTH];
-            strncpy(label, line + 1, strlen(line)); // Extracting label
-            symtable_insert(label, -1); // Insert label into symtable with address -1
+            // Handle A-type instruction
         } else if (is_label(line)) {
-            // inst_type = 'L';
+            // Handle label
             char label[MAX_LABEL_LENGTH];
             extract_label(line, label);
-            strcpy(line, label);
-
-            // Insert extracted label into symtable
-            symtable_insert(label, -1);
+            // Process the extracted label
         } else if (is_Ctype(line)) {
-            // inst_type = 'C';
+            // Handle C-type instruction
         }
-
-        // Commenting out inst_type variable usage
-        // if (inst_type != ' ') {
-        //     printf("%c  %s\n", inst_type, line);
-        // }
     }
 }
