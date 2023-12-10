@@ -1,6 +1,6 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
+// by NaINSTn and Schocken, MIT Press.
 // File name: projects/05/CPU.hdl
 
 /**
@@ -26,6 +26,12 @@
  */
 
 CHIP CPU {
+/**
+ * CPU chip manages computations and program execution.
+ * It interprets instructions fetched from memory.
+ * Comments have been added for clarity.
+ */
+
 
     IN  inM[16],         // M value input  (M = contents of RAM[A])
         instruction[16], // Instruction for execution
@@ -39,5 +45,40 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // Instruction decoding
+    Not(in = instruction[15], out = aINST);
+    Not(in = aINST, out = itsC);
+
+    // Data handling units
+    Mux16(a = instruction, b = outALU, sel = loadALU, out = inA);
+    DRegister(in = outALU, load = loadD, out = outD);
+    ARegister(in = inA, load = loadA, out = outA, out[0..14] = addressM);
+    Mux16(a = outA, b = inM, sel = instruction[12], out = outAM);
+
+    // Control unit signals
+    And(a = itsC, b = instruction[5], out = loadALU);
+    Or(a = aINST, b = instruction[5], out = loadA);
+    And(a = instruction[4], b = itsC, out = loadD); 
+    And(a = itsC, b = instruction[3], out = writeM);
+    And(a = itsC, b = instruction[6], out = no);
+    And(a = itsC, b = instruction[7], out = f);
+    And(a = itsC, b = instruction[8], out = ny);
+    And(a = itsC, b = instruction[9], out = zy);
+    And(a = itsC, b = instruction[10], out = nx);
+    And(a = itsC, b = instruction[11], out = zx);
+    ALU(x = outD, y = outAM, zx = zx, nx = nx, zy = zy, ny = ny, f = f, no = no, out = outALU, out = outM, zr = zr, ng = ng);
+    And(a = itsC, b = instruction[0], out = isGTjmp);
+    And(a = itsC, b = instruction[1], out = isEQjmp);
+    And(a = itsC, b = instruction[2], out = isLTjmp);
+    And(a = ng, b = isLTjmp, out = j1);
+    Not(in = ng, out = itsnotNG);
+    And(a = zr, b = isEQjmp, out = j2);
+    Not(in = zr, out = itsnotZR);
+    And(a = itsnotNG, b = itsnotZR, out = GTZR);
+    And(a = GTZR, b = isGTjmp, out = j3);
+    Or(a = j1, b = j2, out = j12);
+    Or(a = j12, b = j3, out = j4);
+
+    // Program Counter control
+    PC(in = outA, load = j4, inc = true, reset = reset, out[0..14] = pc);
 }

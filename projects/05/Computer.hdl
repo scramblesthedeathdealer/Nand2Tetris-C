@@ -19,8 +19,12 @@ CHIP Computer {
     IN reset;
 
     PARTS:
-    // Put your code here:
-    CPU(reset = reset, inM = outRAM, instruction = ROM, outM = M, writeM = writeM, addressM = addressM, pc = onPC);
-    Memory(in = M, load = writeM, address = address, out = outRAM);
-    ROM32K(address = onPC, out = ROM);
+    // ROM32K represents the read-only memory storing instructions
+    ROM32K(address=programCounter, out=instruction);
+
+    // CPU processes instructions and manages program execution
+    CPU(inM=memoryOut, pc=programCounter, instruction=instruction, reset=reset, outM=outMemory, writeM=writeMemory, addressM=addressMemory);
+
+    // Memory chip handles data storage and retrieval
+    Memory(in=outMemory, out=memoryOut, load=writeMemory, address=addressMemory);
 }
