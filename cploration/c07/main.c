@@ -9,6 +9,7 @@
 #include "parser.h"
 #include <stdio.h>
 #include <string.h>
+#include "symtable.h" // Include symtable.h
 
 int main(int argc, const char *argv[]) {
     if (argc != 2) {
@@ -22,30 +23,12 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
-    char line[MAX_LINE_LENGTH]; // Declare line here
+    parse(file);
 
-    while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
-        strip(line);
-        char inst_type = ' ';
-
-        if (is_Atype(line)) {
-            inst_type = 'A';
-        } else if (is_label(line)) {
-            inst_type = 'L';
-            char label[MAX_LABEL_LENGTH];
-            extract_label(line, label);
-            strcpy(line, label);
-        } else if (is_Ctype(line)) {
-            inst_type = 'C';
-        }
-
-        if (inst_type != ' ') {
-            printf("%c  %s\n", inst_type, line);
-        }
-    }
+    // Print labels from the symbol table
+    symtable_print_labels();
 
     fclose(file);
 
     return 0;
 }
-
